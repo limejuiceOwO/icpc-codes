@@ -1,0 +1,22 @@
+{
+	"shell_cmd": "g++ ${file} -o ${file_path}/${file_base_name}.exe -m32 -O2 -lm -Wall -Wextra",
+	"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$",
+	"working_dir": "${file_path}",
+	"selector": "source.c, source.c++, source.cpp",
+
+	"variants":
+	[
+		{
+			"name": "Run",
+			"shell_cmd": "g++ ${file} -o ${file_path}/${file_base_name}.exe -m32 -O2 -lm -Wall -Wextra && start cmd /c \"${file_path}/${file_base_name}.exe & pause\""
+		},
+		{
+			"name": "Run Only",
+			"shell_cmd": "start cmd /c \"${file_path}/${file_base_name}.exe & pause\""
+		},
+		{
+			"name": "Debug",
+			"shell_cmd": "g++ ${file} -o ${file_path}/${file_base_name}.exe -m32 -O2 -lm -Wall -Wextra -g && start gdb ${file_path}/${file_base_name}.exe"
+		}
+	]
+}
