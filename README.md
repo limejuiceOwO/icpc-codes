@@ -1,3 +1,3 @@
-# oi-codes
+# icpc-codes
 
 とある咸鱼の代码仓库
