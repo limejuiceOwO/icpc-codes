@@ -1,31 +1,19 @@
+int rt[N];
 
-#include<cstdio>
-#include<algorithm>
-#include<queue>
-#include<stack>
-#include<set>
-#include<list>
-#include<cstring>
-using namespace std;
-
-int p[1000];
-
-void union(int a,int b) //a and b are root nodes
+int root(int u)
 {
-  p[a]=b;
+	return (rt[u] == u) ? u : (rt[u] = root(rt[u]));
 }
-void find(int a)
+
+void merge(int u,int v)
 {
-  return p[a]==a?a:p[a]=find[a];
-}
-void same(int a,int b)
-{
-  return find(a)==find(b);
+	if(root(u) != root(v))
+		rt[rt[u]] = rt[v];
 }
 
 int main()
 {
-  for(int i=0;i<1000;i++)
-    p[i]=i;
-  return 0;
+	for(int i = 1;i <= n;i++)
+		rt[i] = i;
+	//...
 }
