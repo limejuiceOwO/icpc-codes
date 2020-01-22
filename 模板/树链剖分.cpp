@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <vector>
-#define N 23333
-using namespace std;
+
 typedef pair<int,int> Pii;
 typedef vector<Pii>::iterator Iter;
 

@@ -1,12 +1,7 @@
-#include <iostream>
-#include <algorithm>
-#define N 23333
-using namespace std;
-
 struct Seg {
 	int l,r;
 	long long val,lazy;
-} tree[N];
+} tree[LOGN * N];
 
 void build(int l,int r,int p)
 {
@@ -65,19 +60,9 @@ long long query(int l,int r,int p)
 
 int main()
 {
-	int n;
-	cin >> n;
+	//...
 	build(0,n - 1,0);
-	while(1) {
-		int cmd,l,r,v;
-		cin >> cmd;
-		if(cmd == 1) {
-			cin >> l >> r;
-			cout << query(l,r,0) << endl;
-		} else {
-			cin >> l >> r >> v;
-			alter(l,r,v,0);
-		}
-	}
-	return 0;
+	cout << query(l,r,0) << endl;
+	alter(l,r,v,0);
+	//...
 }
