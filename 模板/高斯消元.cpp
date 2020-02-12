@@ -1,51 +1,63 @@
-#include<bits/stdc++.h>
-#define N 20
-using namespace std;
+#include <algorithm>
+#include <cmath>
+#define EPS 1e-6
 
-double A[N][N],B[N],ans[N];
+double A[N][N],B[N];
+int primary[N];
 
-bool gauss(int n)
+void swapline(int i,int j)
 {
-  int repr[N];
-  fill(repr,repr+n,-1);
-  for(int i=0;i<n;i++) {
-    for(int k=0;k<n;k++)
-      if(A[i][k]) {
-        repr[i]=k;
-        break;
-      }
-    if(repr[i]<0) return false;
-    double rr=A[i][repr[i]];
-    for(int k=0;k<n;k++)
-      A[i][k]/=rr;
-    B[i]/=rr;
-    for(int j=0;j<n;j++) {
-      if(j!=i) {
-        double r=A[j][repr[i]];
-        for(int k=0;k<n;k++) {
-          A[j][k]-=A[i][k]*r;
-        }
-        B[j]-=B[i]*r;
-      }
-    }
-  }
-  for(int i=0;i<n;i++)
-    ans[repr[i]]=B[i];
-  return true;
+	if(i != j) {
+		swap(A[i],A[j]);
+		swap(B[i],B[j]);
+	}
+}
+
+void subline(int n,int i,int j,int prim)
+{
+	double m = A[i][prim];
+	for(int k = prim;k < n;k++) {
+		A[i][k] -= A[j][k] * m;
+	}
+	B[i] -= B[j] * m;
+}
+
+void gauss(int n)
+{
+	int ln = 0;
+	for(int prim = 0;prim < n;prim++) {
+		for(int i = ln;i < n;i++) {
+			if(fabs(A[i][prim]) > EPS) {
+				swapline(ln,i);
+				goto found;
+			}
+		}
+		continue;
+		found:
+		double m = A[ln][prim];
+		for(int i = 0;i < n;i++)
+			A[ln][i] /= m;
+		B[ln] /= m;
+		for(int i = ln + 1;i < n;i++) {
+			if(fabs(A[i][prim]) > EPS)
+				subline(n,i,ln,prim);
+		}
+		primary[ln++] = prim;
+	}
+	for(int i = ln;i < n;i++)
+		primary[i] = -1;
+	while((ln--) > 1) {
+		int prim = primary[ln];
+		for(int i = 0;i < ln;i++) {
+			if(fabs(A[i][prim]) > EPS)
+				subline(n,i,ln,prim);
+		}
+	}
 }
 
 int main()
 {
-  freopen("gauss.in","r",stdin);
-  int n;
-  cin>>n;
-  for(int i=0;i<n;i++) {
-    for(int j=0;j<n;j++)
-      cin>>A[i][j];
-    cin>>B[i];
-  }
-  gauss(n);
-  for(int i=0;i<n;i++)
-    cout<<(char)('a'+i)<<" = "<<ans[i]<<endl;
-  return 0;
+	//matrix input
+	gauss(n);
+	//...
 }
