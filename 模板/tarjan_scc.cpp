@@ -1,58 +1,62 @@
-#include <iostream>
-#include <algorithm>
 #include <vector>
-#include <stack>
-#define N 1005
-using namespace std;
+#include <cstring>
+#include <algorithm>
 
-vector<int> G[N];
-int dfn[N],low[N],scc_fa[N];
-char in_stk[N];
-stack<int> stk;
-int cnt=1;
+int dfn[N],low[N],stack[N];
+bool inStack[N];
+int stackTop,dfnTop,idTop;
+int sccID[N];
+vector<int> graph[N];
+typedef vector<int>::iterator Iter;
+//point compression related objects
+vector<int> compGraph[N]; //a DAG
 
-void tarjan(int u)
-{
-	//cout<<"'"<<u<<endl;
-	dfn[u]=low[u]=cnt++;
-	stk.push(u);
-	in_stk[u]=1;
-	for(unsigned int i=0;i<G[u].size();i++) {
-		int v=G[u][i];
+void tarjan_dfs(int u) {
+	dfn[u] = low[u] = ++dfnTop;
+	stack[stackTop++] = u;
+	inStack[u] = true;
+	for(Iter it = graph[u].begin();it != graph[u].end();++it) {
+		int v = *it;
 		if(!dfn[v]) {
-			tarjan(v);
-			low[u]=min(low[u],low[v]);
-		} else if(in_stk[v]) {
-			low[u]=min(low[u],dfn[v]);
-		}
+			tarjan_dfs(v);
+			low[u] = min(low[u],low[v]);
+		} else if(inStack[v]) { //v is an ancestor of u
+			low[u] = min(low[u],dfn[v]);
+		} //otherwise v must be in another SCC which cannot reach u
 	}
-	if(low[u]==dfn[u]) {
-		//cout<<"''"<<u<<endl;
-		int uu;
-		do {
-			uu=stk.top();stk.pop();
-			//if(scc_fa[uu]!=0) cout<<"''"<<uu<<endl;
-			scc_fa[uu]=u;
-			in_stk[uu]=0;
-		} while(uu!=u);
+	if(dfn[u] == low[u]) { //u is the top node of a new SCC
+		int idNew = ++idTop;
+		while(stack[stackTop - 1] != u) { //the stack cannot be empty
+			inStack[stack[stackTop - 1]] = false;
+			sccID[stack[--stackTop]] = idNew;
+		}
+		inStack[u] = false;
+		sccID[u] = idNew;
+		stackTop--;
 	}
 }
 
-int main()
-{
-	int n,m;
-	cin>>n>>m;
-	for(int i=0;i<m;i++) {
-		int u,v;
-		cin>>u>>v;
-		G[u].push_back(v);
+void tarjan(int n) {
+	dfnTop = idTop = 0; //no need to clear stack and id after a clear run
+	memset(dfn,0,sizeof(dfn));
+	for(int i = 1;i <= n;i++) {
+		if(!dfn[i])
+			tarjan_dfs(i);
 	}
-	//memset(vis,0,sizeof(vis));
-	//memset(in_stk,0,sizeof(in_stk));
-	//tarjan(1);
-	for(int i=1;i<=n;i++) if(!dfn[i]) tarjan(i);
-	for(int i=1;i<=n;i++) {
-		cout<<i<<" "<<scc_fa[i]<<endl;
+}
+
+void tarjan_compression(int n) {
+	tarjan(n);
+	for(int u = 1;u <= n;u++) {
+		for(Iter it = graph[u].begin();it != graph[u].end();++it) {
+			if(sccID[u] != sccID[*it]) {
+				compGraph[sccID[u]].push_back(sccID[*it]);
+			}
+		}
 	}
-	return 0;
+	//optional,costs extra log(n) complexity
+	for(int u = 1;u <= idTop;u++) {
+		sort(compGraph[u].begin(),compGraph[u].end()); 
+		unique(compGraph[u].begin(),compGraph[u].end());
+	}
 }
